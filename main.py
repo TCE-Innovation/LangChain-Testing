@@ -184,7 +184,13 @@ document_search = FAISS.from_texts(texts, embeddings)
 
 chain = load_qa_chain(OpenAI(openai_api_key=key), chain_type ="stuff")
 
-query = "Do I need flagging to access the Reserve EDR? Cite where you got your information."
+query = """
+Do I need flagging to access the Reserve EDR?
+Cite where you got your information.
+State the section as well as the page number.
+Quote the text you referred to.
+"""
+
 docs = document_search.similarity_search(query)
 print(chain.run(input_documents=docs, question=query))
 
