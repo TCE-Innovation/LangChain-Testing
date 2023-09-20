@@ -150,7 +150,7 @@ import os
 
 # Load the API key stored in .env file
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
+key = os.getenv("OPENAI_API_KEY")
 # os.environ["OPENAI_API_KEY"] = openai_api_key
 
 # Load pdf stored in file explorer
@@ -176,15 +176,15 @@ text_splitter = CharacterTextSplitter(
 )
 
 # Download embeddings from OpenAi
-embeddings = OpenAIEmbeddings(openai_api_key="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")
+embeddings = OpenAIEmbeddings(openai_api_key=key)
 
 texts = text_splitter.split_text(raw_text)
 
 document_search = FAISS.from_texts(texts, embeddings)
 
-chain = load_qa_chain(OpenAI(openai_api_key="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"), chain_type ="stuff")
+chain = load_qa_chain(OpenAI(openai_api_key=key), chain_type ="stuff")
 
-query = "What is this document about?"
+query = "Do I need flagging to access the Reserve EDR? Cite where you got your information."
 docs = document_search.similarity_search(query)
 print(chain.run(input_documents=docs, question=query))
 
