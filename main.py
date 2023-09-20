@@ -16,6 +16,10 @@ from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 import os
 
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+
 
 
 # Load the API key stored in .env file
@@ -54,13 +58,40 @@ document_search = FAISS.from_texts(texts, embeddings)
 
 chain = load_qa_chain(OpenAI(openai_api_key=key), chain_type ="stuff")
 
-query = """
-Do I need flagging to access the Reserve EDR?
+# query = """
+# Do I need flagging to access the Reserve EDR?
+# Cite where you got your information.
+# State the section as well as the page number.
+# Quote the text you referred to.
+# """
+
+query = input("Enter your question: ")
+
+query = query + """
 Cite where you got your information.
-State the section as well as the page number.
+State the section number, section letter, and page number.
 Quote the text you referred to.
+Have citations be formatted into a separate paragraph.
 """
-
 docs = document_search.similarity_search(query)
-print(chain.run(input_documents=docs, question=query))
+# print(chain.run(input_documents=docs, question=query))
 
+output_text = chain.run(input_documents=docs, question=query)
+
+# Create a PDF document
+output_filename = "output.pdf"
+doc = SimpleDocTemplate(output_filename, pagesize=letter)
+styles = getSampleStyleSheet()
+story = []
+
+# Add a title
+story.append(Paragraph('Langchain Output', styles['Title']))
+
+# Add the output text
+story.append(Paragraph(output_text, styles['Normal']))
+
+# Build the PDF document
+doc.build(story)
+
+# Automatically open the PDF document using the default program associated with .pdf files
+os.system(f"start {output_filename}")
